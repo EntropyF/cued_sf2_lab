@@ -20,14 +20,15 @@ lighthouse, _ = load_mat_img(img='lighthouse.mat', img_info='X')
 bridge, _ = load_mat_img(img='bridge.mat', img_info='X')
 flamingo, _ = load_mat_img(img='flamingo.mat', img_info='X')
 
-fig, axs = plt.subplots(1, 3)
-plot_image(lighthouse, ax=axs[0])
-plot_image(bridge, ax=axs[1])
-plot_image(flamingo, ax=axs[2])
+# fig, axs = plt.subplots(1, 3)
+# plot_image(lighthouse, ax=axs[0])
+# plot_image(bridge, ax=axs[1])
+# plot_image(flamingo, ax=axs[2])
+# plt.show()
 
-Xl = lighthouse - 128
-Xb = bridge - 128
-Xf = flamingo - 128
+Xl = lighthouse - 128.0
+Xb = bridge - 128.0
+Xf = flamingo - 128.0
 
 ### 6-laplacian-pyramid ###
 def py4enc(X, h):
@@ -136,7 +137,7 @@ def nlevidwt(Y, n):
         m = 2 * m
     return current_image
 
-def quantdwt(Y: np.ndarray, dwtstep: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def quantdwt(Y, dwtstep):
     """
     Parameters:
         Y: the output of `dwt(X, n)`
@@ -204,3 +205,24 @@ def measure_energy_contribution1(image_size=256, layers=3):
         d = d // 2
         
     return energies
+
+# DCT
+C8 = dct_ii(8)
+Yl = colxfm(colxfm(Xl, C8).T, C8).T
+step = 21
+rise1 = step * 1.5
+Yq = quantise(Yl, step, rise1)
+N = 8
+Yr = regroup(Yq, N)
+
+# Total number of bits using dctbpp
+dctbpp_bits = dctbpp(Yr, N)
+print(f'Total number of bits using dctbpp: {dctbpp_bits:2f}')
+
+Z = colxfm(colxfm(Yq.T, C8.T).T, C8.T)
+dct_rms_error = np.std(Xl - Z)
+print(f'MSE for DCT is: {dct_rms_error}')
+
+fig, ax = plt.subplots()
+plot_image(Z, ax=ax)
+plt.show()
