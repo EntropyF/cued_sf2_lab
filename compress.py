@@ -14,6 +14,8 @@ from cued_sf2_lab.dct import colxfm
 from cued_sf2_lab.dct import regroup
 from cued_sf2_lab.dwt import dwt
 from cued_sf2_lab.dwt import idwt
+from cued_sf2_lab.jpeg import (
+    jpegenc, jpegdec, quant1, quant2, huffenc, huffdflt, huffdes, huffgen)
 
 # Initialise three images
 lighthouse, _ = load_mat_img(img='lighthouse.mat', img_info='X')
@@ -217,11 +219,16 @@ Yr = regroup(Yq, N)
 
 # Total number of bits using dctbpp
 dctbpp_bits = dctbpp(Yr, N)
-print(f'Total number of bits using dctbpp: {dctbpp_bits:2f}')
+# print(f'Total number of bits using dctbpp: {dctbpp_bits:2f}')
 
-Z = colxfm(colxfm(Yq.T, C8.T).T, C8.T)
-dct_rms_error = np.std(Xl - Z)
-print(f'MSE for DCT is: {dct_rms_error}')
+# Z = colxfm(colxfm(Yq.T, C8.T).T, C8.T)
+# dct_rms_error = np.std(Xl - Z)
+# print(f'MSE for DCT is: {dct_rms_error}')
+
+# Huffman coding
+qstep = 30
+vlc, hufftab = jpegenc(Xl, qstep)
+Z = jpegdec(vlc, qstep)
 
 fig, ax = plt.subplots()
 plot_image(Z, ax=ax)
