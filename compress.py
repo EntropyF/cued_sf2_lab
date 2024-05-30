@@ -211,24 +211,25 @@ def measure_energy_contribution1(image_size=256, layers=3):
 # DCT
 C8 = dct_ii(8)
 Yl = colxfm(colxfm(Xl, C8).T, C8).T
-step = 10
+step = 17
 rise1 = step * 1.5
 Yq = quantise(Yl, step, rise1)
 N = 8
 Yr = regroup(Yq, N)
 
 # Total number of bits using dctbpp
-dctbpp_bits = dctbpp(Yr, N)
-print(f'Total number of bits using dctbpp: {dctbpp_bits:2f}')
+# dctbpp_bits = dctbpp(Yr, N)
+# print(f'Total number of bits using dctbpp: {dctbpp_bits:2f}')
 
-Z = colxfm(colxfm(Yq.T, C8.T).T, C8.T)
-dct_rms_error = np.std(Xl - Z)
-print(f'MSE for DCT is: {dct_rms_error}')
+# Z = colxfm(colxfm(Yq.T, C8.T).T, C8.T)
+# dct_rms_error = np.std(Xl - Z)
+# print(f'MSE for DCT is: {dct_rms_error}')
 
 # Huffman coding
-qstep = 10
-vlc, hufftab = jpegenc(Z, qstep)
-Z_jpec = jpegdec(vlc, qstep)
+qstep = 30
+vlc, hufftab = jpegenc(Xl, qstep, 16, 16)
+Z_jpec = jpegdec(vlc, qstep, 16, 16)
+
 jpeg_rms_error = np.std(Xl - Z_jpec)
 print(f'MSE for jpeg is: {jpeg_rms_error}')
 
