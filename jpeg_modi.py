@@ -1,6 +1,20 @@
 # Modify jpeg functions for LBT and DWT
 from LBT import LBT, ILBT
 import numpy as np
+import matplotlib.pyplot as plt
+from cued_sf2_lab.familiarisation import load_mat_img, plot_image
+from cued_sf2_lab.laplacian_pyramid import quantise, bpp
+from cued_sf2_lab.laplacian_pyramid import rowdec
+from cued_sf2_lab.laplacian_pyramid import rowint
+from cued_sf2_lab.laplacian_pyramid import bpp
+from scipy.optimize import minimize_scalar
+from cued_sf2_lab.dct import dct_ii, colxfm, regroup
+from cued_sf2_lab.dwt import dwt, idwt
+from cued_sf2_lab.jpeg import (
+    jpegenc, jpegdec, quant1, quant2, huffenc, huffdflt, huffdes, huffgen, diagscan, runampl, HuffmanTable)
+from typing import Tuple, NamedTuple, Optional
+from cued_sf2_lab.bitword import bitword
+
 
 def jpegenc_lbt(X: np.ndarray, qstep: float, N: int = 8, M: int = 8,
         opthuff: bool = False, dcbits: int = 8, log: bool = True
