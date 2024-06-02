@@ -17,3 +17,24 @@ flamingo, _ = load_mat_img(img='flamingo.mat', img_info='X')
 Xl = lighthouse - 128.0
 Xb = bridge - 128.0
 Xf = flamingo - 128.0
+
+def LBT(X: np.ndarray, N: int, s:float) -> np.ndarray:
+    Pf, Pr = pot_ii(N, s)
+    C = dct_ii(N)
+    t = np.s_[N//2:-N//2]
+    Xp = X.copy()
+    Xp[t,:] = colxfm(Xp[t,:], Pf)
+    Xp[:,t] = colxfm(Xp[:,t].T, Pf).T
+    Y = colxfm(colxfm[Xp, C].T, C).T
+    return Y
+
+def ILBT(Y: np.ndarray, N: int, s: float) -> np.ndarray:
+    Pf, Pr = pot_ii(N, s)
+    C = dct_ii(N)
+    t = np.s_[N//2:-N//2]
+    Z = colxfm(colxfm(Yq.T, C8.T).T, C8.T)
+    Zp = Z.copy()
+    Zp[:,t] = colxfm(Zp[:,t].T, Pr.T).T
+    Zp[t,:] = colxfm(Zp[t,:], Pr.T)
+    return Zp
+
