@@ -522,12 +522,12 @@ def jpegdec_2dct(vlc: np.ndarray, qstep: float, N: int = 4, M: int = 16,
 
     return Z
 
-X_test = Xf
-step = 40
-vlc, hufftab = jpegenc_2dct(X_test, step, opthuff=True)
-Z = jpegdec_2dct(vlc, step, hufftab=hufftab)
-jpeg_rms_error = np.std(X_test - Z)
-print(f'MSE for jpeg is: {jpeg_rms_error}')
-fig, ax = plt.subplots()
-plot_image(Z, ax=ax)
-plt.show()
+# X_test = Xf
+# step = 40
+# vlc, hufftab = jpegenc_2dct(X_test, step, opthuff=True)
+# Z = jpegdec_2dct(vlc, step, hufftab=hufftab)
+# jpeg_rms_error = np.std(X_test - Z)
+# print(f'MSE for jpeg is: {jpeg_rms_error}')
+# fig, ax = plt.subplots()
+# plot_image(Z, ax=ax)
+# plt.show()

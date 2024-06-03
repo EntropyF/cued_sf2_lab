@@ -16,32 +16,39 @@ from jpeg_modi import jpegdec_lbt, jpegenc_lbt
 lighthouse, _ = load_mat_img(img='lighthouse.mat', img_info='X')
 bridge, _ = load_mat_img(img='bridge.mat', img_info='X')
 flamingo, _ = load_mat_img(img='flamingo.mat', img_info='X')
+compete4, _ = load_mat_img(img='SF2_competition_image_2024.mat', img_info='X')
+compete3, _ = load_mat_img(img='SF2_competition_image_2023.mat', img_info='X')
 
 Xl = lighthouse - 128.0
 Xb = bridge - 128.0
 Xf = flamingo - 128.0
+X4 = compete4 - 128.0
+X3 = compete3 - 128.0
 
 def huffman_bits_gap(step, X, N, M):
     qstep = step
-    vlc = jpegenc(X, qstep, N, M, opthuff=True)[0]
+    vlc = jpegenc_lbt(X, qstep, N, M, opthuff=True, log=False)[0]
     total_bits = sum(vlc[:, 1])
-    return abs(total_bits - 40960.0 + 1424.0)
+    diff = total_bits - 40960.0 + 1424.0 + 5.0
+    if diff > 0:
+        diff = diff * 100000
+    return abs(diff)
 
 def optimize_huffman_step_size(X, N, M):
     result = minimize_scalar(
         huffman_bits_gap, 
         args=(X, N, M),
-        bounds=(0.1, 80), 
+        bounds=(2, 80), 
         method='bounded'
         )
     return result.x
 
-X_test = Xf
-n = 16
-m = 32
+X_test = X4
+n = 8
+m = 8
 step_opt = optimize_huffman_step_size(X_test, n, m)
 # print(step_opt)
-# step_opt = 0
+# step_opt = 30
 
 vlc_m, hufftab_m = jpegenc_lbt(X_test, step_opt, n, m, opthuff=True)
 Z_lbt = jpegdec_lbt(vlc_m, step_opt, n, m, hufftab=hufftab_m)
