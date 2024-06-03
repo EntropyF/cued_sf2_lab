@@ -8,6 +8,7 @@ from cued_sf2_lab.laplacian_pyramid import quantise, bpp
 from scipy.optimize import minimize_scalar
 from cued_sf2_lab.dct import dct_ii, colxfm, regroup
 from cued_sf2_lab.dwt import dwt, idwt
+from typing import Tuple
 
 # Initialise three images
 lighthouse, _ = load_mat_img(img='lighthouse.mat', img_info='X')
@@ -18,30 +19,99 @@ Xl = lighthouse - 128.0
 Xb = bridge - 128.0
 Xf = flamingo - 128.0
 
-def nlevdwt(X, n):
-    # your code here
-    current_image = X.copy()
-    m, w = X.shape
-    for _ in range(n+1):
-        current_image[:m, :m] = dwt(current_image[:m, :m])
-        m = m // 2
-    return current_image
+def dctbpp(Yr, N):
+    # Your code here
+    h, w = Yr.shape
+    total_bits = 0
+    d = h//N
+    for i in range(0, h, d):
+        for j in range(0, w, d):
+            Ys = Yr[i: i+d, j: j+d]
+            total_bits += bpp(Ys) * (d ** 2)
+    return total_bits
 
+# def nlevdwt(X, n):
+#     # your code here
+#     current_image = X.copy()
+#     m, w = X.shape
+#     for _ in range(n):
+#         m = m // 2
+#         current_image[:m, :m] = dwt(current_image[:m, :m])
+        
+#     return current_image
+
+def nlevdwt(X, n):
+    assert(n >= 1)
+    m=256
+    Y=dwt(X)
+    for i in range(1, n):
+        m = m//2
+        Y[:m, :m] = dwt(Y[:m, :m])
+    return Y
 
 def nlevidwt(Y, n):
-    # your code here
-    current_image = Y.copy()
-    m, w = Y.shape
-    m = m // (2**n)
-    for _ in range(n+1):
-        current_image[:m, :m] = idwt(current_image[:m, :m])
-        m = 2 * m
-    return current_image
+    m = 256 // 2 ** n
+    Z = Y.copy()
+    for i in range(n):
+        m = m*2
+        Z[:m, :m] = idwt(Z[:m, :m])
+    return Z
 
+# def nlevidwt(Y, n):
+#     # your code here
+#     current_image = Y.copy()
+#     m, w = Y.shape
+#     m = m // (2**n)
+#     for _ in range(n):
+#         current_image[:m, :m] = idwt(current_image[:m, :m])
+#         m = 2 * m
+#     return current_image
 
-# ---- EQUAL MSE
+def quantdwt(Y: np.ndarray, dwtstep: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Parameters:
+        Y: the output of `dwt(X, n)`
+        dwtstep: an array of shape `(3, n+1)`
+    Returns:
+        Yq: the quantized version of `Y`
+        dwtent: an array of shape `(3, n+1)` containing the entropies
+    """
+    def quantise_and_get_entropy(Y_sub, dwtstep, k, i):
+        q = dwtstep[k, i]
+        Yq_sub = quantise(Y_sub, q)
+        ent = bpp(Yq_sub) * Yq_sub.shape[0] * Yq_sub.shape[1]
+        return Yq_sub, ent
 
-def get_step_ratios(image_size=256, layers=3):
+    n = dwtstep.shape[1] - 1
+    Yq = Y.copy()
+    ent_M = np.zeros(Y.shape)
+    dwtent = np.zeros(dwtstep.shape)
+    
+    m = 512
+    for i in range(n):
+        m = m//2
+        
+        # Top right
+        Yq[m//2:m, 0:m//2], dwtent[0, i] = quantise_and_get_entropy(Yq[m//2:m, 0:m//2], dwtstep, 0, i)
+        ent_M[m//2:m, 0:m//2] = dwtent[0, i]
+
+        # Bottom Left
+        Yq[0:m//2, m//2:m], dwtent[1, i] = quantise_and_get_entropy(Yq[0:m//2, m//2:m], dwtstep, 1, i)
+        ent_M[0:m//2, m//2:m] = dwtent[1, i]
+
+        # Bottom right
+        Yq[m//2:m, m//2:m], dwtent[2, i] = quantise_and_get_entropy(Yq[m//2:m, m//2:m], dwtstep, 2, i)
+        ent_M[m//2:m, m//2:m] = dwtent[2, i]
+
+    # Top left
+    Yq[0:m//2, 0:m//2], dwtent[0, n] = quantise_and_get_entropy(Yq[0:m//2, 0:m//2], dwtstep, 0, n)
+    ent_M[0:m//2, 0:m//2] = dwtent[0, n]
+    
+    return Yq, dwtent, ent_M
+
+def get_step_ratios(layers):
+    """Get equal MSE DWT step ratios."""
+    image_size = 256
     ratios = np.zeros((3, layers + 1))
     impulse_amplitude = 100
 
@@ -69,7 +139,6 @@ def get_step_ratios(image_size=256, layers=3):
         # Update right edge and d
         edge = edge // 2
         d = d // 2
-        
     
     # Top left
     d = d * 2
@@ -82,3 +151,23 @@ def get_step_ratios(image_size=256, layers=3):
     ratios[2, layers] = None
 
     return ratios
+
+n = 3
+step = 25
+Y = nlevdwt(Xl, n)
+dwtstep = get_step_ratios(n) * step
+Yq, dwtent, ent_M = quantdwt(Y, dwtstep)
+Z = nlevidwt(Yq, n)
+total_bits = dwtent.sum()
+print(f'Total number of bits: {total_bits:2f}')
+
+fig, ax = plt.subplots()
+plot_image(Z, ax=ax)
+plt.show()
+
+# total_bits = dwtent.sum()
+# print(f'Total number of bits: {total_bits:2f}')
+# Total_bits_Xq = bpp(quantise(Xb, 17)) * Xb.size
+# print(f'Total number of bits(Xq): {Total_bits_Xq:2f}')
+# Compression_ratio_const_step_size = Total_bits_Xq / total_bits
+# print(f'Compression Ratio Equal-MSE-Scheme: {Compression_ratio_const_step_size:6f}')
