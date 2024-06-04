@@ -30,16 +30,6 @@ def dctbpp(Yr, N):
             total_bits += bpp(Ys) * (d ** 2)
     return total_bits
 
-# def nlevdwt(X, n):
-#     # your code here
-#     current_image = X.copy()
-#     m, w = X.shape
-#     for _ in range(n):
-#         m = m // 2
-#         current_image[:m, :m] = dwt(current_image[:m, :m])
-        
-#     return current_image
-
 def nlevdwt(X, n):
     assert(n >= 1)
     m=256
@@ -56,16 +46,6 @@ def nlevidwt(Y, n):
         m = m*2
         Z[:m, :m] = idwt(Z[:m, :m])
     return Z
-
-# def nlevidwt(Y, n):
-#     # your code here
-#     current_image = Y.copy()
-#     m, w = Y.shape
-#     m = m // (2**n)
-#     for _ in range(n):
-#         current_image[:m, :m] = idwt(current_image[:m, :m])
-#         m = 2 * m
-#     return current_image
 
 def quantdwt(Y: np.ndarray, dwtstep: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -107,7 +87,7 @@ def quantdwt(Y: np.ndarray, dwtstep: np.ndarray) -> Tuple[np.ndarray, np.ndarray
     Yq[0:m//2, 0:m//2], dwtent[0, n] = quantise_and_get_entropy(Yq[0:m//2, 0:m//2], dwtstep, 0, n)
     ent_M[0:m//2, 0:m//2] = dwtent[0, n]
     
-    return Yq, dwtent, ent_M
+    return Yq, dwtent
 
 def get_step_ratios(layers):
     """Get equal MSE DWT step ratios."""
@@ -152,18 +132,18 @@ def get_step_ratios(layers):
 
     return ratios
 
-n = 3
-step = 25
-Y = nlevdwt(Xl, n)
-dwtstep = get_step_ratios(n) * step
-Yq, dwtent, ent_M = quantdwt(Y, dwtstep)
-Z = nlevidwt(Yq, n)
-total_bits = dwtent.sum()
-print(f'Total number of bits: {total_bits:2f}')
+# n = 3
+# step = 25
+# Y = nlevdwt(Xl, n)
+# dwtstep = get_step_ratios(n) * step
+# Yq, dwtent = quantdwt(Y, dwtstep)
+# Z = nlevidwt(Yq, n)
+# total_bits = dwtent.sum()
+# print(f'Total number of bits: {total_bits:2f}')
 
-fig, ax = plt.subplots()
-plot_image(Z, ax=ax)
-plt.show()
+# fig, ax = plt.subplots()
+# plot_image(Z, ax=ax)
+# plt.show()
 
 # total_bits = dwtent.sum()
 # print(f'Total number of bits: {total_bits:2f}')

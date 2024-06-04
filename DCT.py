@@ -7,6 +7,8 @@ from cued_sf2_lab.familiarisation import load_mat_img, plot_image
 from cued_sf2_lab.laplacian_pyramid import quantise, bpp
 from scipy.optimize import minimize_scalar
 from cued_sf2_lab.dct import dct_ii, colxfm, regroup
+from skimage.metrics import structural_similarity as ssim
+
 
 # Initialise three images
 lighthouse, _ = load_mat_img(img='lighthouse.mat', img_info='X')
@@ -93,7 +95,11 @@ step_opt = optimize_dct_step_size(Xb, 8, 1.5)
 print(step_opt)
 print(dct_rms_error(step_opt, Xb, 8, 1.5))
 print(dct_total_bits(step_opt, Xb, 8, 1.5))
+Z = dct_reconstruct(step_opt, Xb, 8, 1.5)
+
+ssim, _ = ssim(Z, Xb)
+print('SSIM Index: ', ssim)
 
 fig, ax = plt.subplots()
-plot_image(dct_reconstruct(step_opt, Xb, 8, 1.5), ax=ax)
+plot_image(Z, ax=ax)
 plt.show()
