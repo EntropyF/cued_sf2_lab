@@ -7,7 +7,7 @@ from cued_sf2_lab.familiarisation import load_mat_img, plot_image
 from cued_sf2_lab.laplacian_pyramid import quantise, bpp
 from scipy.optimize import minimize_scalar
 from cued_sf2_lab.dct import dct_ii, colxfm, regroup
-from skimage.metrics import structural_similarity as ssim
+from SSIM import calculate_ssim
 
 
 # Initialise three images

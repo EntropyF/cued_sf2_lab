@@ -1044,9 +1044,9 @@ def jpegdec_dwt_equal_mse(vlc: np.ndarray, qstep: float, n: int = 3, N: int = 8,
 
     return Z
 
-step = 13
-vlc, dhufftab = jpegenc_dwt_equal_mse(Xl, step, opthuff=True)
-Z = jpegdec_dwt_equal_mse(vlc, step, hufftab=dhufftab)
-fig, ax = plt.subplots()
-plot_image(Z, ax=ax)
-plt.show()
+# step = 13
+# vlc, dhufftab = jpegenc_dwt_equal_mse(Xl, step, opthuff=True)
+# Z = jpegdec_dwt_equal_mse(vlc, step, hufftab=dhufftab)
+# fig, ax = plt.subplots()
+# plot_image(Z, ax=ax)
+# plt.show()

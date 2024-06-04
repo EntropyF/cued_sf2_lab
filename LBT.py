@@ -9,6 +9,7 @@ from scipy.optimize import minimize_scalar
 from cued_sf2_lab.dct import dct_ii, colxfm, regroup
 from cued_sf2_lab.dwt import dwt, idwt
 from cued_sf2_lab.lbt import pot_ii
+from SSIM import calculate_ssim
 
 # Initialise three images
 lighthouse, _ = load_mat_img(img='lighthouse.mat', img_info='X')
@@ -41,6 +42,10 @@ def ILBT(Y: np.ndarray, N: int, s: float) -> np.ndarray:
 
 # Yl = LBT(Xl, 8, s=np.sqrt(2))
 # Zl = ILBT(Yl, 8, s=np.sqrt(2))
+
+# Calculate SSIM
+# ssim_score = calculate_ssim(Xl, Zl)
+# print(f"SSIM between the images: {ssim_score:.4f}")
 # fig, ax = plt.subplots()
 # plot_image(Zl, ax=ax)
 # plt.show()

@@ -9,6 +9,7 @@ from scipy.optimize import minimize_scalar
 from cued_sf2_lab.dct import dct_ii, colxfm, regroup
 from cued_sf2_lab.dwt import dwt, idwt
 from typing import Tuple
+from SSIM import calculate_ssim
 
 # Initialise three images
 lighthouse, _ = load_mat_img(img='lighthouse.mat', img_info='X')
