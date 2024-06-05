@@ -10,7 +10,7 @@ from cued_sf2_lab.dct import dct_ii, colxfm, regroup
 from cued_sf2_lab.dwt import dwt, idwt
 from cued_sf2_lab.jpeg import (
     jpegenc, jpegdec, quant1, quant2, huffenc, huffdflt, huffdes, huffgen)
-from jpeg_modi import jpegdec_lbt, jpegenc_lbt
+from jpeg_modi import jpegdec_lbt, jpegenc_lbt, jpegdec1, jpegenc1, jpegdec2, jpegenc2
 from SSIM import calculate_ssim
 
 # Initialise three images
@@ -28,7 +28,7 @@ X3 = compete3 - 128.0
 
 def huffman_bits_gap(step, X, N, M):
     qstep = step
-    vlc = jpegenc_lbt(X, qstep, N, M, opthuff=True, log=False)[0] # Change dct/lbt here
+    vlc = jpegenc1(X, qstep, N, M, opthuff=True, log=False)[0] # Change dct/lbt here
     total_bits = sum(vlc[:, 1])
     diff = total_bits - 40960.0 + 1424.0 + 5.0 # opthuff needs the extra 1424 bits
     # diff = total_bits - 40960.0 + 5.0
@@ -47,45 +47,45 @@ def optimize_huffman_step_size(X, N, M):
 
 # Decide which picture and N, M values
 X_test = Xl
-n = 4
+n = 8
 m = 8
 step_opt = optimize_huffman_step_size(X_test, n, m)
 # print(step_opt)
 # step_opt = 28
 
 ### For LBT tests
-vlc, hufftab = jpegenc_lbt(X_test, step_opt, n, m, opthuff=True)
-Z_lbt = jpegdec_lbt(vlc, step_opt, n, m, hufftab=hufftab)
+# vlc, hufftab = jpegenc_lbt(X_test, step_opt, n, m, opthuff=True)
+# Z_lbt = jpegdec_lbt(vlc, step_opt, n, m, hufftab=hufftab)
 # vlc, hufftab = jpegenc_lbt(X_test, step_opt, n, m)
 # Z_lbt = jpegdec_lbt(vlc, step_opt, n, m)
-jpeg_rms_error = np.std(X_test - Z_lbt)
-print(f'MSE for jpeg is: {jpeg_rms_error:.4f}')
-## Calculate SSIM
-ssim_score = calculate_ssim(X_test, Z_lbt)
-print(f"SSIM between the images: {ssim_score:.4f}")
-fig, axs = plt.subplots(1, 2, figsize=(8, 4))
-fig.suptitle('Comparison of compressed and original images')
-plot_image(X_test, ax=axs[0])
-axs[0].set(title='original')
-plot_image(Z_lbt, ax=axs[1])
-axs[1].set(title='compressed')
-plt.show()
-
-### For DCT tests
-# vlc, hufftab = jpegenc(X_test, step_opt, n, m, opthuff=True)
-# Z = jpegdec(vlc, step_opt, n, m, hufftab=hufftab)
-# # vlc, hufftab = jpegenc(X_test, step_opt, n, m)
-# # Z = jpegdec(vlc, step_opt, n, m)
-# jpeg_rms_error = np.std(X_test - Z)
-# ## Calculate RMS Error
-# print(f'MSE for jpeg is: {jpeg_rms_error}')
+# jpeg_rms_error = np.std(X_test - Z_lbt)
+# print(f'MSE for jpeg is: {jpeg_rms_error:.4f}')
 # ## Calculate SSIM
-# ssim_score = calculate_ssim(X_test, Z)
+# ssim_score = calculate_ssim(X_test, Z_lbt)
 # print(f"SSIM between the images: {ssim_score:.4f}")
 # fig, axs = plt.subplots(1, 2, figsize=(8, 4))
 # fig.suptitle('Comparison of compressed and original images')
 # plot_image(X_test, ax=axs[0])
 # axs[0].set(title='original')
-# plot_image(Z, ax=axs[1])
+# plot_image(Z_lbt, ax=axs[1])
 # axs[1].set(title='compressed')
 # plt.show()
+
+### For DCT tests
+vlc, hufftab = jpegenc1(X_test, step_opt, n, m, opthuff=True)
+Z = jpegdec1(vlc, step_opt, n, m, hufftab=hufftab)
+# vlc, hufftab = jpegenc(X_test, step_opt, n, m)
+# Z = jpegdec(vlc, step_opt, n, m)
+jpeg_rms_error = np.std(X_test - Z)
+## Calculate RMS Error
+print(f'MSE for jpeg is: {jpeg_rms_error}')
+## Calculate SSIM
+ssim_score = calculate_ssim(X_test, Z)
+print(f"SSIM between the images: {ssim_score:.4f}")
+fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+fig.suptitle('Comparison of compressed and original images')
+plot_image(X_test, ax=axs[0])
+axs[0].set(title='original')
+plot_image(Z, ax=axs[1])
+axs[1].set(title='compressed')
+plt.show()

@@ -133,22 +133,47 @@ def get_step_ratios(layers):
 
     return ratios
 
-# n = 3
-# step = 25
-# Y = nlevdwt(Xl, n)
-# dwtstep = get_step_ratios(n) * step
+def dwt_rms_error(step, X, n):
+    Y = nlevdwt(X, n)
+    dwtstep = get_step_ratios(n) * step
+    Yq, dwtent = quantdwt(Y, dwtstep)
+    Z = nlevidwt(Yq, n)
+    rms_error = np.std(X - Z)
+    rmsX = np.std(X-quantise(X, 17))
+    return abs(rms_error- rmsX)
+
+def optimize_dwt_step_size(X, n):
+    result = minimize_scalar(
+        dwt_rms_error, 
+        args=(X, n),
+        bounds=(0.1, 50), 
+        method='bounded'
+        )
+    return result.x
+
+# # Can enter X or Xb or different pics, and different n levels
+# n = 5
+# X_test = Xl
+# step_opt = optimize_dwt_step_size(X_test, n)
+# # step = 25
+# print(f'optimized reference step size is: {step_opt:.4f}')
+
+# Y = nlevdwt(X_test, n)
+# dwtstep = get_step_ratios(n) * step_opt
 # Yq, dwtent = quantdwt(Y, dwtstep)
 # Z = nlevidwt(Yq, n)
 # total_bits = dwtent.sum()
-# print(f'Total number of bits: {total_bits:2f}')
-
-# fig, ax = plt.subplots()
-# plot_image(Z, ax=ax)
-# plt.show()
-
-# total_bits = dwtent.sum()
-# print(f'Total number of bits: {total_bits:2f}')
-# Total_bits_Xq = bpp(quantise(Xb, 17)) * Xb.size
-# print(f'Total number of bits(Xq): {Total_bits_Xq:2f}')
+# print(f'Total number of bits: {total_bits:.2f}')
+# Total_bits_Xq = bpp(quantise(X_test, 17)) * X_test.size
 # Compression_ratio_const_step_size = Total_bits_Xq / total_bits
-# print(f'Compression Ratio Equal-MSE-Scheme: {Compression_ratio_const_step_size:6f}')
+# print(f'Compression Ratio Equal-MSE-Scheme: {Compression_ratio_const_step_size:.4f}')
+# ssim_score = calculate_ssim(X_test, Z)
+# print(f"SSIM between the images: {ssim_score:.4f}")
+
+# fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+# fig.suptitle('Comparison of compressed and original images')
+# plot_image(X_test, ax=axs[0])
+# axs[0].set(title='original')
+# plot_image(Z, ax=axs[1])
+# axs[1].set(title='compressed')
+# plt.show()
