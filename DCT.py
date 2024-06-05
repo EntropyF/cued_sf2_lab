@@ -97,7 +97,7 @@ print(dct_rms_error(step_opt, Xb, 8, 1.5))
 print(dct_total_bits(step_opt, Xb, 8, 1.5))
 Z = dct_reconstruct(step_opt, Xb, 8, 1.5)
 
-ssim, _ = ssim(Z, Xb)
+ssim, _ = calculate_ssim(Z, Xb)
 print('SSIM Index: ', ssim)
 
 fig, ax = plt.subplots()

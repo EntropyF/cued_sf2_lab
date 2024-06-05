@@ -832,7 +832,7 @@ def jpegenc_dwt_equal_mse(X: np.ndarray, qstep: float, n: int = 3, N: int = 8, M
     if log:
         print('Quantising to step size of {}'.format(qstep))
     # Yq = quant1(Y, qstep, qstep).astype('int')
-    dwtstep = get_step_ratios(n) * step
+    dwtstep = get_step_ratios(n) * qstep
     Yq = quantdwt(Y, dwtstep)[0].astype('int')
 
     # Generate zig-zag scan of AC coefs.
