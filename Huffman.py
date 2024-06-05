@@ -28,7 +28,7 @@ X3 = compete3 - 128.0
 
 def huffman_bits_gap(step, X, N, M):
     qstep = step
-    vlc = jpegenc1(X, qstep, N, M, opthuff=True, log=False)[0] # Change dct/lbt here
+    vlc = jpegenc(X, qstep, N, M, opthuff=True, log=False)[0] # Change dct/lbt here
     total_bits = sum(vlc[:, 1])
     diff = total_bits - 40960.0 + 1424.0 + 5.0 # opthuff needs the extra 1424 bits
     # diff = total_bits - 40960.0 + 5.0
@@ -72,8 +72,8 @@ step_opt = optimize_huffman_step_size(X_test, n, m)
 # plt.show()
 
 ### For DCT tests
-vlc, hufftab = jpegenc1(X_test, step_opt, n, m, opthuff=True)
-Z = jpegdec1(vlc, step_opt, n, m, hufftab=hufftab)
+vlc, hufftab = jpegenc(X_test, step_opt, n, m, opthuff=True)
+Z = jpegdec(vlc, step_opt, n, m, hufftab=hufftab)
 # vlc, hufftab = jpegenc(X_test, step_opt, n, m)
 # Z = jpegdec(vlc, step_opt, n, m)
 jpeg_rms_error = np.std(X_test - Z)
@@ -89,3 +89,7 @@ axs[0].set(title='original')
 plot_image(Z, ax=axs[1])
 axs[1].set(title='compressed')
 plt.show()
+
+# fig, ax = plt.subplots()
+# plot_image(Z, ax=ax)
+# plt.show()
