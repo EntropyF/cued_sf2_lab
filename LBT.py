@@ -76,15 +76,15 @@ def reconstruct_lbt(step, X, N, s):
 # plot_image(Zl, ax=ax)
 # plt.show()
 
-s = np.sqrt(2)
-X_test = Xb
-N = 4
-step_opt = optimize_dct_step_size(X_test, N)
-print(f'optimized step size: {step_opt:.4f}')
-Z = reconstruct_lbt(step_opt, X_test, N, s)
-ssim_score = calculate_ssim(X_test, Z)
-print(f"SSIM between the images: {ssim_score:.4f}")
+# s = np.sqrt(2)
+# X_test = Xb
+# N = 4
+# step_opt = optimize_dct_step_size(X_test, N)
+# print(f'optimized step size: {step_opt:.4f}')
+# Z = reconstruct_lbt(step_opt, X_test, N, s)
+# ssim_score = calculate_ssim(X_test, Z)
+# print(f"SSIM between the images: {ssim_score:.4f}")
 
-fig, ax = plt.subplots()
-plot_image(Z, ax=ax)
-plt.show()
+# fig, ax = plt.subplots()
+# plot_image(Z, ax=ax)
+# plt.show()
